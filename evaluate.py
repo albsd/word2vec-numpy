@@ -100,12 +100,14 @@ def main():
 
     if args.analogy:
         words = args.analogy.strip().split()
-        if len(words) != 3: ap.error("--analogy expects exactly three words.")
+        if len(words) != 3:
+            ap.error("--analogy expects exactly three words.")
         word_analogy(*words, W_norm=W_norm, idx2word=idx2word, word2idx=word2idx, k=args.topk)
 
     if args.sim:
         words = args.sim.strip().split()
-        if len(words) != 2: ap.error("--sim expects exactly two words.")
+        if len(words) != 2:
+            ap.error("--sim expects exactly two words.")
         cosine_similarity(*words, W_norm=W_norm, word2idx=word2idx)
 
     if args.interactive:
