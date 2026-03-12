@@ -41,7 +41,7 @@ class Vocabulary:
         f = np.array([c for _, c in pairs], dtype=np.float64) / total
 
         # P(w) ∝ freq(w)^0.75
-        p75 = f ** 0.75
+        p75 = f**0.75
         self.neg_probs = (p75 / p75.sum()).astype(np.float64)
 
         # P(keep) = min(1, (√(f/t) + 1)·(t/f))
@@ -103,7 +103,9 @@ class SkipGramNS:
         rng = np.random.default_rng(seed)
         self.V = vocab_size
         self.D = embed_dim
-        self.W = (rng.random((vocab_size, embed_dim)).astype(np.float32) - 0.5) / embed_dim
+        self.W = (
+            rng.random((vocab_size, embed_dim)).astype(np.float32) - 0.5
+        ) / embed_dim
         self.W2 = np.zeros((vocab_size, embed_dim), dtype=np.float32)
 
     @staticmethod
@@ -151,9 +153,11 @@ class SkipGramNS:
         return m
 
 
-def gradient_check(vocab_size: int = 20, embed_dim: int = 4,
-                   neg_k: int = 3, eps: float = 1e-4) -> None:
+def gradient_check(
+    vocab_size: int = 20, embed_dim: int = 4, neg_k: int = 3, eps: float = 1e-4
+) -> None:
     import copy
+
     np.random.seed(7)
     model = SkipGramNS(vocab_size, embed_dim, seed=7)
 
@@ -165,8 +169,10 @@ def gradient_check(vocab_size: int = 20, embed_dim: int = 4,
         u = m.W[c[0]]
         vo = m.W2[o[0]]
         vn = m.W2[neg[0]]
-        return (-np.log(m._sigmoid(np.array([float(u @ vo)]))[0] + 1e-7)
-                -np.log(m._sigmoid(-(u @ vn.T).astype(float)) + 1e-7).sum())
+        return (
+            -np.log(m._sigmoid(np.array([float(u @ vo)]))[0] + 1e-7)
+            - np.log(m._sigmoid(-(u @ vn.T).astype(float)) + 1e-7).sum()
+        )
 
     def num_grad(mat, idx, d):
         m1 = copy.deepcopy(model)
@@ -189,8 +195,11 @@ def gradient_check(vocab_size: int = 20, embed_dim: int = 4,
 
     err_W = max(abs(grad_u[0, d] - num_grad("W", c[0], d)) for d in range(embed_dim))
     err_vo = max(abs(grad_vo[0, d] - num_grad("W2", o[0], d)) for d in range(embed_dim))
-    err_vn = max(abs(grad_vn[0, k, d] - num_grad("W2", neg[0, k], d))
-                 for k in range(neg_k) for d in range(embed_dim))
+    err_vn = max(
+        abs(grad_vn[0, k, d] - num_grad("W2", neg[0, k], d))
+        for k in range(neg_k)
+        for d in range(embed_dim)
+    )
 
     print(f"W  (center)  max err: {err_W:.2e}")
     print(f"W2 (pos ctx) max err: {err_vo:.2e}")
